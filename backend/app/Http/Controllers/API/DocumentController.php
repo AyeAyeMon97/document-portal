@@ -5,11 +5,12 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreDocumentRequest;
+use App\Http\Requests\UpdateDocumentRequest;
 use App\Http\Resources\DocumentResource;
 use App\Services\DocumentService;
 use App\Traits\ApiResponseTrait;
 use App\Models\Document;
-use Illuminate\Support\Facades\Storage; 
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
@@ -38,6 +39,22 @@ class DocumentController extends Controller
             new DocumentResource($document->load('user')),
             'Document uploaded successfully',
             201
+        );
+    }
+
+    public function update(UpdateDocumentRequest $request, string $id)
+    {
+        $document = Document::findOrFail($id);
+        $document = $this->documentService->update(
+            auth('api')->user(),
+            $document,
+            $request->validated(),
+            $request->file('file')
+        );
+        return $this->success(
+            new DocumentResource($document->load('user')),
+            'Document updated successfully',
+            200
         );
     }
 

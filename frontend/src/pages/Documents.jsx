@@ -6,6 +6,7 @@ import {
 
 import DocumentUpload from "../components/documents/DocumentUpload";
 import DocumentList from "../components/documents/DocumentList";
+import DocumentEdit from "../components/documents/DocumentEdit";
 import Button from "../components/common/Button";
 import ErrorMessage from "../components/common/ErrorMessage";
 
@@ -15,6 +16,7 @@ import { getErrorMessage, } from "../utils/errorHandler";
 
 export default function Documents() {
     const [documents, setDocuments] = useState([]);
+    const [editingDocument, setEditingDocument] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [page, setPage] = useState(1);
@@ -66,6 +68,20 @@ export default function Documents() {
         }
     };
 
+    const handleEdit = (document) => {
+        setError("");
+        setEditingDocument(document);
+    };
+
+    const handleUpdated = async () => {
+        setEditingDocument(null);
+        await loadDocuments(page);
+    };
+
+    const handleCancelEdit = () => {
+        setEditingDocument(null);
+    };
+
     const handleDownload = async (document) => {
         try {
             setError("");
@@ -106,23 +122,25 @@ export default function Documents() {
 
             <ErrorMessage message={error} />
 
-            <DocumentUpload onUploaded={() => loadDocuments(1)} />
+            {/* <DocumentUpload onUploaded={() => loadDocuments(1)} /> */}
+            {editingDocument ? (
+                <DocumentEdit
+                    document={editingDocument}
+                    onUpdated={handleUpdated}
+                    onCancel={handleCancelEdit}
+                />
+            ) : (
+                <DocumentUpload onUploaded={() => loadDocuments(1)} />
+            )}
 
             <div className="card">
                 <h2> All Documents  </h2>
                 <DocumentList
-                    documents={
-                        documents
-                    }
-                    loading={
-                        loading
-                    }
-                    onDelete={
-                        handleDelete
-                    }
-                    onDownload={
-                        handleDownload
-                    }
+                    documents={documents}
+                    loading={loading}
+                    onDelete={handleDelete}
+                    onDownload={handleDownload}
+                    onEdit={handleEdit}
                 />
 
                 {!loading &&
@@ -130,12 +148,7 @@ export default function Documents() {
                     0 && (
                         <div className="pagination">
 
-                            <Button onClick={
-                                handlePrevious
-                            } disabled={
-                                page <=
-                                1
-                            } >
+                            <Button onClick={handlePrevious} disabled={page <= 1} >
                                 Previous
                             </Button>
 
@@ -146,21 +159,12 @@ export default function Documents() {
                                 {lastPage}
                             </span>
 
-                            <Button onClick={
-                                handleNext
-                            } disabled={
-                                page >=
-                                lastPage
-                            }
-                            >
+                            <Button onClick={handleNext} disabled={page >= lastPage} >
                                 Next
                             </Button>
-
                         </div>
                     )}
-
             </div>
-
         </div>
     );
 }

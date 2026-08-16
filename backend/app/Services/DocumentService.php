@@ -41,6 +41,56 @@ class DocumentService
         });
     }
 
+    public function update(
+        User $user,
+        Document $document,
+        array $data,
+        ?UploadedFile $file = null
+    ): Document {
+        if ($document->user_id !== $user->id) {
+            abort(
+                403,
+                'You can only update your own document.'
+            );
+        }
+
+        return DB::transaction(function () use (
+            $user,
+            $document,
+            $data,
+            $file
+        ) {
+            $updateData = [];
+
+            // Update title
+            if (array_key_exists('title', $data)) {
+                $updateData['title'] = $data['title'];
+            }
+            // If new file uploaded
+            if ($file) {
+                // Delete old file
+                if ($document->file_path) {
+                    Storage::disk('local')->delete(
+                        $document->file_path
+                    );
+                }
+                // Store new file
+                $path = $file->store(
+                    'documents',
+                    'local'
+                );
+                $updateData['file_name'] = $file->getClientOriginalName();
+                $updateData['file_path'] = $path;
+                $updateData['file_size'] = $file->getSize();
+                $updateData['mime_type'] = $file->getMimeType();
+            }
+
+            $document->update($updateData);
+
+            return $document->fresh();
+        });
+    }
+
     public function delete(
         Document $document,
         User $user

@@ -19,12 +19,23 @@ const documentService = {
             formData,
             {
                 headers: {
-                    "Content-Type":
-                        "multipart/form-data",
+                    "Content-Type": "multipart/form-data",
                 },
             }
         );
+        return response.data;
+    },
 
+    update: async (id, formData) => {
+        formData.append("_method", "PUT");
+        const response = await api.post(
+            `/documents/${id}`,
+            formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }
+        );
         return response.data;
     },
 

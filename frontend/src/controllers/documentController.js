@@ -18,6 +18,18 @@ const documentController = {
         );
     },
 
+    update: async (id, title, file = null) => {
+        const formData = new FormData();
+        formData.append("title", title);
+        if (file) {
+            formData.append("file", file);
+        }
+        return await documentService.update(
+            id,
+            formData
+        );
+    },
+
     delete: async (id) => {
         return await documentService.delete(
             id

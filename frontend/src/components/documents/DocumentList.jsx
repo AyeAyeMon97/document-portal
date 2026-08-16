@@ -6,6 +6,7 @@ export default function DocumentList({
     loading,
     onDelete,
     onDownload,
+    onEdit
 }) {
     if (loading) {
         return (
@@ -25,15 +26,10 @@ export default function DocumentList({
         <div className="document-list">
             {documents.map(
                 (document) => (
-                    <DocumentItem
-                        key={document.id}
-                        document={document}
-                        onDelete={
-                            onDelete
-                        }
-                        onDownload={
-                            onDownload
-                        }
+                    <DocumentItem key={document.id} document={document}
+                        onDelete={onDelete}
+                        onDownload={onDownload}
+                        onEdit={onEdit}
                     />
                 )
             )}

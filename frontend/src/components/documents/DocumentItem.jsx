@@ -5,6 +5,7 @@ export default function DocumentItem({
     document,
     onDelete,
     onDownload,
+    onEdit
 }) {
     const { user } = useAuth();
 
@@ -25,9 +26,14 @@ export default function DocumentItem({
                 </Button>
 
                 {isOwner && (
-                    <Button onClick={() => onDelete(document.id)} className="danger">
-                        Delete
-                    </Button>
+                    <>
+                        <Button onClick={() => onEdit(document)} >
+                            Edit
+                        </Button>
+                        <Button onClick={() => onDelete(document.id)} className="danger">
+                            Delete
+                        </Button>
+                    </>
                 )}
 
             </div>
