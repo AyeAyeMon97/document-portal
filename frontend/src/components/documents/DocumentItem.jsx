@@ -5,39 +5,42 @@ export default function DocumentItem({
     document,
     onDelete,
     onDownload,
-    onEdit
+    onEdit,
 }) {
     const { user } = useAuth();
-
     const isOwner = document.uploaded_by?.id === user?.id;
 
     return (
         <div className="document-item">
-            <div>
-                <h3> {document.title} </h3>
-                <p>  File:   {" "} {document.file_name}</p>
-                <p> Uploaded by: {" "} {document.uploaded_by?.name} </p>
-                <p>  Type: {" "} {document.mime_type}</p>
+            <div className="document-item-info">
+                <h3>{document.title}</h3>
+                <div className="document-meta">
+                    <span>{document.file_name}</span>
+                    <span>{document.mime_type}</span>
+                    <span>By {document.uploaded_by?.name || "Unknown"}</span>
+                </div>
             </div>
 
             <div className="document-actions">
-                <Button onClick={() => onDownload(document)}  >
+                <Button
+                    className="btn-secondary"
+                    onClick={() => onDownload(document)}
+                >
                     Download
                 </Button>
 
                 {isOwner && (
                     <>
-                        <Button onClick={() => onEdit(document)} >
-                            Edit
-                        </Button>
-                        <Button onClick={() => onDelete(document.id)} className="danger">
+                        <Button onClick={() => onEdit(document)}>Edit</Button>
+                        <Button
+                            onClick={() => onDelete(document.id)}
+                            className="danger"
+                        >
                             Delete
                         </Button>
                     </>
                 )}
-
             </div>
-
         </div>
     );
 }

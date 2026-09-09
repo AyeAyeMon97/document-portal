@@ -74,6 +74,8 @@ export function AuthProvider({
         logout,
         isAuthenticated: Boolean(user),
         isAdmin: user?.role === "admin",
+        hasPermission: (permission) =>
+            Boolean(user?.permissions?.includes(permission)),
     };
     return (
         <AuthContext.Provider value={value} >

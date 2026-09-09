@@ -37,8 +37,11 @@ class AuthController extends Controller
 
     public function me()
     {
+        $user = auth('api')->user();
+        $user->load('role.permissions');
+
         return $this->success(
-            new UserResource(auth('api')->user())
+            new UserResource($user)
         );
     }
 

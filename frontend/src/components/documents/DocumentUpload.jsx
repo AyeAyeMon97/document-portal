@@ -5,25 +5,16 @@ import Button from "../common/Button";
 import ErrorMessage from "../common/ErrorMessage";
 
 import documentController from "../../controllers/documentController";
+import { getErrorMessage } from "../../utils/errorHandler";
 
-import {
-    getErrorMessage,
-} from "../../utils/errorHandler";
-
-export default function DocumentUpload({
-    onUploaded,
-}) {
+export default function DocumentUpload({ onUploaded, onCancel }) {
     const [title, setTitle] = useState("");
-
     const [file, setFile] = useState(null);
-
     const [loading, setLoading] = useState(false);
-
     const [error, setError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         setError("");
 
         if (!file) {
@@ -33,62 +24,60 @@ export default function DocumentUpload({
 
         try {
             setLoading(true);
-
             await documentController.upload(title, file);
-
             setTitle("");
             setFile(null);
-
             e.target.reset();
 
             if (onUploaded) {
                 await onUploaded();
             }
-        } catch (error) {
-            setError(getErrorMessage(error));
+        } catch (err) {
+            setError(getErrorMessage(err));
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="card">
-            <h2>  Upload Document  </h2>
-            <form onSubmit={handleSubmit} >
-                <Input
-                    label="Title"
-                    value={title}
-                    onChange={(e) =>
-                        setTitle(
-                            e.target.value
-                        )
-                    }
-                    placeholder="Document title"
+        <form className="modal-form" onSubmit={handleSubmit}>
+            <Input
+                label="Title"
+                name="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Document title"
+                required
+            />
+
+            <div className="form-group">
+                <label htmlFor="document-file">File</label>
+                <input
+                    id="document-file"
+                    type="file"
+                    className="file-input"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
                     required
                 />
+            </div>
 
-                <div className="form-group">
-                    <label>  File </label>
+            <ErrorMessage message={error} />
 
-                    <input
-                        type="file"
-                        onChange={(e) =>
-                            setFile(
-                                e.target.files?.[0] ||
-                                null
-                            )
-                        }
-                        required
-                    />
-
-                </div>
-
-                <ErrorMessage message={error} />
-
-                <Button type="submit" loading={loading} >
+            <div className="modal-actions">
+                {onCancel && (
+                    <Button
+                        type="button"
+                        className="btn-secondary"
+                        onClick={onCancel}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </Button>
+                )}
+                <Button type="submit" loading={loading}>
                     Upload
                 </Button>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 }

@@ -8,18 +8,13 @@ use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return auth('api')->check()
-            && auth('api')->user()->isAdmin();
+            && auth('api')->user()->hasPermission('users.create');
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
@@ -30,25 +25,27 @@ class StoreUserRequest extends FormRequest
                 'string',
                 'max:255',
             ],
-
             'email' => [
                 'required',
                 'email',
                 'unique:users,email',
             ],
-
             'password' => [
                 'required',
                 'string',
                 'min:8',
             ],
-
+            'role_id' => [
+                'nullable',
+                'uuid',
+                'exists:roles,id',
+                'required_without:role',
+            ],
             'role' => [
-                'required',
-                Rule::in([
-                    'admin',
-                    'member',
-                ]),
+                'nullable',
+                'string',
+                'required_without:role_id',
+                Rule::exists('roles', 'slug'),
             ],
         ];
     }

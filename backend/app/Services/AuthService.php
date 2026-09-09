@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
@@ -13,20 +12,40 @@ class AuthService
         if (! $token = auth('api')->attempt($credentials)) {
             throw new \Exception('Invalid email or password.', 401);
         }
+
+        $user = auth('api')->user();
+        $user->load('role.permissions');
+
         return [
             'token' => $token,
-            'user' => auth('api')->user(),
+            'user' => $user,
         ];
     }
 
     public function createUser(array $data): User
     {
-        return User::create([
+        $roleId = $data['role_id'] ?? null;
+
+        if (! $roleId && ! empty($data['role'])) {
+            $roleId = Role::query()
+                ->where('slug', $data['role'])
+                ->value('id');
+        }
+
+        if (! $roleId) {
+            $roleId = Role::query()
+                ->where('slug', 'member')
+                ->value('id');
+        }
+
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'member',
+            'password' => $data['password'],
+            'role_id' => $roleId,
         ]);
+
+        return $user->load('role.permissions');
     }
 
     public function logout(): void

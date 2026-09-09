@@ -42,28 +42,28 @@ class DocumentController extends Controller
         );
     }
 
-    public function update(UpdateDocumentRequest $request, string $id)
+    public function update(UpdateDocumentRequest $request, string $document)
     {
-        $document = Document::findOrFail($id);
-        $document = $this->documentService->update(
+        $documentModel = Document::findOrFail($document);
+        $documentModel = $this->documentService->update(
             auth('api')->user(),
-            $document,
+            $documentModel,
             $request->validated(),
             $request->file('file')
         );
         return $this->success(
-            new DocumentResource($document->load('user')),
+            new DocumentResource($documentModel->load('user')),
             'Document updated successfully',
             200
         );
     }
 
-    public function destroy(string $id)
+    public function destroy(string $document)
     {
-        $document = Document::findOrFail($id);
+        $documentModel = Document::findOrFail($document);
 
         $this->documentService->delete(
-            $document,
+            $documentModel,
             auth('api')->user()
         );
 
